@@ -1,0 +1,24 @@
+#Crear contenedor php: 
+
+docker run -d -p 8088:80 -v ${PWD}/apache:/var/www/html --name mi-contenedor-php php:apache-bullseye
+docker exec -it mi-contenedor-php docker-php-ext-install mysqli
+docker exec -it mi-contenedor-php docker-php-ext-enable mysqli
+
+#Crear contenedor web1 y web2:
+
+docker run -d --name web1 -p 8081:80 php:apache-bullseye
+docker run -d --name web2 -p 8082:80 php:apache-bullseye              
+
+#Crear el contenedor mysql:
+docker run -d -p 3306:3306 --name mi-contenedor-mysql -e MYSQL_ROOT_PASSWORD=root1 -v ${PWD}/db:/var/lib/mysql mysql:debian
+
+#Entrar en docker y al contenedor de web1 y web2 en su terminal instalar:
+docker-php-ext-install mysqli
+docker-php-ext-enable mysqli
+service apache2 restart
+
+#Crear el contenedor haproxy:
+docker run -d --name haproxy-container -p 8085:80 haproxy:latest
+
+#Copiar lo del archivo haproxy.cfg al contenedor:
+docker cp ${PWD}/haproxy/haproxy.cfg haproxy-container:/usr/local/etc/haproxy/haproxy.cfg
